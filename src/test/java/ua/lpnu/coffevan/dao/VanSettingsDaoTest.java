@@ -1,0 +1,56 @@
+package ua.lpnu.coffevan.dao;
+
+import org.junit.jupiter.api.*;
+import ua.lpnu.coffevan.model.Van;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class VanSettingsDaoTest {
+
+    private static Connection connection;
+    private static VanSettingsDao dao;
+
+    @BeforeAll
+    static void setUpDb() throws SQLException {
+        connection = DriverManager.getConnection("jdbc:sqlite::memory:");
+        String createTable = """
+                CREATE TABLE IF NOT EXISTS van_settings (
+                    id         INTEGER PRIMARY KEY,
+                    max_volume REAL    NOT NULL DEFAULT 1000.0,
+                    max_budget REAL    NOT NULL DEFAULT 50000.0
+                );
+                """;
+        connection.createStatement().execute(createTable);
+        connection.createStatement().execute(
+                "INSERT INTO van_settings (id, max_volume, max_budget) VALUES (1, 1000.0, 50000.0)");
+        dao = new VanSettingsDao(connection);
+    }
+
+    @AfterAll
+    static void tearDown() throws SQLException {
+        connection.close();
+    }
+
+    @Test
+    void load_returnsDefaultSettings() {
+        Van van = dao.load();
+        assertEquals(1000.0, van.getMaxVolumeLiters(), 0.001);
+        assertEquals(50000.0, van.getMaxBudget(), 0.001);
+    }
+
+    @Test
+    void save_updatesSettings() {
+        Van van = new Van(2000.0, 100000.0);
+        dao.save(van);
+
+        Van loaded = dao.load();
+        assertEquals(2000.0, loaded.getMaxVolumeLiters(), 0.001);
+        assertEquals(100000.0, loaded.getMaxBudget(), 0.001);
+
+        dao.save(new Van(1000.0, 50000.0));
+    }
+}
