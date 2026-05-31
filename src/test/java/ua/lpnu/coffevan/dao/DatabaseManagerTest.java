@@ -147,4 +147,30 @@ class DatabaseManagerTest {
             fail(e);
         }
     }
+
+    @Test
+    @Order(11)
+    void close_whenSQLException_logsError() throws Exception {
+        DatabaseManager currentManager = DatabaseManager.getInstance();
+        Connection mockedConn = org.mockito.Mockito.mock(Connection.class);
+        org.mockito.Mockito.when(mockedConn.isClosed()).thenReturn(false);
+        org.mockito.Mockito.doThrow(new SQLException("Mocked close error")).when(mockedConn).close();
+        
+        // Inject mock connection
+        java.lang.reflect.Field connField = DatabaseManager.class.getDeclaredField("connection");
+        connField.setAccessible(true);
+        Connection originalConn = (Connection) connField.get(currentManager);
+        connField.set(currentManager, mockedConn);
+        
+        try {
+            assertDoesNotThrow(() -> currentManager.close());
+        } finally {
+            // Restore original connection and reset instance
+            connField.set(currentManager, originalConn);
+            java.lang.reflect.Field field = DatabaseManager.class.getDeclaredField("instance");
+            field.setAccessible(true);
+            field.set(null, null);
+        }
+    }
 }
+

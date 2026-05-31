@@ -248,6 +248,68 @@ class VanServiceTest {
         assertEquals(1, result.size());
     }
 
+    @Test
+    void constructor_withPreExistingDaoItems_recalculatesVanUsage() {
+        // Populate DAO before constructing VanService
+        BeanCoffee c1 = new BeanCoffee("A", 200, 2.0, 5.0, PackagingType.PACKAGE, 80, "X", "Y");
+        BeanCoffee c2 = new BeanCoffee("B", 300, 1.0, 3.0, PackagingType.PACKAGE, 75, "X", "Y");
+        coffeeDao.store.put(1, c1);
+        coffeeDao.store.put(2, c2);
+
+        // Construct a new service with same DAO that already has items
+        VanService freshService = new VanService(coffeeDao, vanSettingsDao);
+
+        // recalculateVanUsage should have summed up: 5.0 + 3.0 = 8.0 litres
+        assertEquals(8.0, freshService.getTotalVolume(), 0.001,
+                "Van should recalculate used volume from existing DAO items");
+        // budget: 200*2 + 300*1 = 700
+        assertEquals(700.0, freshService.getTotalBudget(), 0.001,
+                "Van should recalculate spent budget from existing DAO items");
+    }
+
+    @Test
+    void findByQualityRange_boundaryValues_areInclusive() {
+        coffeeDao.store.put(1, new BeanCoffee("Exact Min", 100, 1.0, 1.5, PackagingType.PACKAGE, 60, "X", "Y"));
+        coffeeDao.store.put(2, new BeanCoffee("Exact Max", 200, 1.0, 1.5, PackagingType.PACKAGE, 80, "X", "Y"));
+        coffeeDao.store.put(3, new BeanCoffee("Below Min", 100, 1.0, 1.5, PackagingType.PACKAGE, 59, "X", "Y"));
+        coffeeDao.store.put(4, new BeanCoffee("Above Max", 200, 1.0, 1.5, PackagingType.PACKAGE, 81, "X", "Y"));
+
+        List<Coffee> result = vanService.findByQualityRange(60, 80);
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(c -> c.getName().equals("Exact Min")));
+        assertTrue(result.stream().anyMatch(c -> c.getName().equals("Exact Max")));
+    }
+
+    @Test
+    void findByQualityRange_noMatchingItems_returnsEmptyList() {
+        coffeeDao.store.put(1, new BeanCoffee("Only", 100, 1.0, 1.5, PackagingType.PACKAGE, 50, "X", "Y"));
+        List<Coffee> result = vanService.findByQualityRange(90, 100);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void sortByPriceToWeightRatio_emptyDao_returnsEmptyList() {
+        // coffeeDao is empty by default
+        List<Coffee> sorted = vanService.sortByPriceToWeightRatio();
+        assertTrue(sorted.isEmpty());
+    }
+
+    @Test
+    void updateCoffee_changesVanUsageCorrectly() {
+        BeanCoffee original = new BeanCoffee("Old", 200, 1.0, 5.0, PackagingType.PACKAGE, 80, "X", "Y");
+        original.setId(1);
+        van.load(original);
+        coffeeDao.store.put(1, original);
+
+        BeanCoffee updated = new BeanCoffee("New", 300, 1.0, 8.0, PackagingType.PACKAGE, 90, "X", "Y");
+        updated.setId(1);
+
+        vanService.updateCoffee(original, updated);
+
+        // After update: original (5.0L) unloaded, updated (8.0L) loaded
+        assertEquals(8.0, vanService.getTotalVolume(), 0.001);
+    }
+
     // ---- Stub implementations ----
 
     static class StubCoffeeDao implements CoffeeDao {

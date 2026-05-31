@@ -74,13 +74,12 @@ class MainWindowTest extends ApplicationTest {
 
     @Test
     void resetFilterButton_click_doesNotThrow() {
-        // Type something into search field first
-        clickOn(".search-field").write("arabica");
+        javafx.scene.control.TextField searchField =
+                lookup(".search-field").queryAs(javafx.scene.control.TextField.class);
+        interact(() -> searchField.setText("arabica"));
         // Then reset filters
         clickOn("✕ Скинути");
         // No exception expected; search field should be empty
-        javafx.scene.control.TextField searchField =
-                lookup(".search-field").queryAs(javafx.scene.control.TextField.class);
         assertEquals("", searchField.getText());
     }
 

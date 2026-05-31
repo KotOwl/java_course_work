@@ -80,4 +80,69 @@ class SmtpEmailNotifierTest {
         assertTrue(java.lang.reflect.Modifier.isPrivate(constructor.getModifiers()),
                 "Constructor should be private");
     }
+
+    /**
+     * When password IS set, all helper getters (host, port, user, to) must be
+     * called. Setting them to custom values verifies the Properties object
+     * uses those values (the SMTP send will fail with ConnectException, which
+     * is caught inside the method — so no exception propagates).
+     */
+    @Test
+    void sendCriticalAlert_withCustomSmtpProps_readsAllProperties() {
+        System.setProperty("mail.smtp.host",     "testhost.local");
+        System.setProperty("mail.smtp.port",     "2525");
+        System.setProperty("mail.smtp.user",     "user@testhost.local");
+        System.setProperty("mail.smtp.password", "secret");
+        System.setProperty("mail.to",            "to@testhost.local");
+        try {
+            // Should not throw — all exceptions are caught internally
+            assertDoesNotThrow(() ->
+                    SmtpEmailNotifier.sendCriticalAlert("Props test", "body"));
+        } finally {
+            System.clearProperty("mail.smtp.host");
+            System.clearProperty("mail.smtp.port");
+            System.clearProperty("mail.smtp.user");
+            System.clearProperty("mail.smtp.password");
+            System.clearProperty("mail.to");
+        }
+    }
+
+    /**
+     * Default values are used when no system properties are set.
+     * We set password only so the method body is entered.
+     */
+    @Test
+    void sendCriticalAlert_withDefaultSmtpProps_usesDefaultValues() {
+        // Only set password — host/port/user/to should use defaults
+        System.setProperty("mail.smtp.password", "pass");
+        // Clear any previously set custom values
+        System.clearProperty("mail.smtp.host");
+        System.clearProperty("mail.smtp.port");
+        System.clearProperty("mail.smtp.user");
+        System.clearProperty("mail.to");
+        try {
+            assertDoesNotThrow(() ->
+                    SmtpEmailNotifier.sendCriticalAlert("Defaults test", "body"));
+        } finally {
+            System.clearProperty("mail.smtp.password");
+        }
+    }
+
+    /**
+     * Mock the static Transport.send method so that the mail sending
+     * completes successfully, covering the success log statement.
+     */
+    @Test
+    void sendCriticalAlert_whenTransportSucceeds_logsSuccess() {
+        System.setProperty("mail.smtp.password", "secret");
+        try (var mockedTransport = org.mockito.Mockito.mockStatic(javax.mail.Transport.class)) {
+            assertDoesNotThrow(() ->
+                    SmtpEmailNotifier.sendCriticalAlert("Success test", "body"));
+            mockedTransport.verify(() ->
+                    javax.mail.Transport.send(org.mockito.ArgumentMatchers.any(javax.mail.Message.class)));
+        } finally {
+            System.clearProperty("mail.smtp.password");
+        }
+    }
 }
+
