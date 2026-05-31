@@ -112,6 +112,7 @@
                 <version>3.2.5</version>
                 <configuration>
                     <argLine>
+                        -Dnet.bytebuddy.experimental=true
                         --add-opens ua.lpnu.coffevan/ua.lpnu.coffevan.dao=ALL-UNNAMED
                         --add-opens ua.lpnu.coffevan/ua.lpnu.coffevan.service=ALL-UNNAMED
                         --add-opens ua.lpnu.coffevan/ua.lpnu.coffevan.model=ALL-UNNAMED

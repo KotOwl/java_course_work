@@ -105,4 +105,24 @@ class DatabaseManagerTest {
         assertTrue(cols.contains("quality_score"), "Column 'quality_score' must exist");
         assertTrue(cols.contains("extra1"),        "Column 'extra1' must exist");
     }
+
+    @Test
+    @Order(9)
+    void close_closesConnectionAndResettingInstanceAllowsRecreation() throws Exception {
+        DatabaseManager currentManager = DatabaseManager.getInstance();
+        assertFalse(currentManager.getConnection().isClosed());
+        
+        currentManager.close();
+        assertTrue(currentManager.getConnection().isClosed());
+        
+        // Reset the singleton instance using reflection so other tests (or runs) get a fresh, working manager
+        java.lang.reflect.Field field = DatabaseManager.class.getDeclaredField("instance");
+        field.setAccessible(true);
+        field.set(null, null);
+        
+        // Check that getting instance again yields a new, open connection
+        DatabaseManager newManager = DatabaseManager.getInstance();
+        assertNotNull(newManager);
+        assertFalse(newManager.getConnection().isClosed());
+    }
 }

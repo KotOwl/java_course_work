@@ -53,4 +53,26 @@ class VanSettingsDaoTest {
 
         dao.save(new Van(1000.0, 50000.0));
     }
+
+    @Test
+    void load_whenSqlException_returnsFallbackSettings() throws SQLException {
+        Connection mockedConn = org.mockito.Mockito.mock(Connection.class);
+        org.mockito.Mockito.when(mockedConn.prepareStatement(org.mockito.Mockito.anyString()))
+                .thenThrow(new SQLException("Mocked DB error"));
+        VanSettingsDao exceptionDao = new VanSettingsDao(mockedConn);
+        
+        Van van = exceptionDao.load();
+        assertEquals(1000.0, van.getMaxVolumeLiters(), 0.001);
+        assertEquals(50000.0, van.getMaxBudget(), 0.001);
+    }
+
+    @Test
+    void save_whenSqlException_handlesGracefully() throws SQLException {
+        Connection mockedConn = org.mockito.Mockito.mock(Connection.class);
+        org.mockito.Mockito.when(mockedConn.prepareStatement(org.mockito.Mockito.anyString()))
+                .thenThrow(new SQLException("Mocked DB error"));
+        VanSettingsDao exceptionDao = new VanSettingsDao(mockedConn);
+        
+        assertDoesNotThrow(() -> exceptionDao.save(new Van(2000.0, 100000.0)));
+    }
 }
