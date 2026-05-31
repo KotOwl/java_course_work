@@ -9,5 +9,10 @@
                 "--add-opens", "ua.lpnu.coffevan/ua.lpnu.coffevan.model=ALL-UNNAMED"
             ]
         }
+    ],
+    "java.test.coverage.exclude": [
+        "**/ui/**",
+        "**/App.java",
+        "**/CoverageReporter.java"
     ]
 }
