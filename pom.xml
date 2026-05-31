@@ -168,6 +168,25 @@
                 </executions>
             </plugin>
 
+            <!-- Exec Plugin to automatically run the Java class to generate markdown coverage report -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-coverage-md</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>ua.lpnu.coffevan.util.CoverageReporter</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Fat JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
