@@ -130,6 +130,7 @@
                     <excludes>
                         <exclude>ua/lpnu/coffevan/ui/**</exclude>
                         <exclude>ua/lpnu/coffevan/App.class</exclude>
+                        <exclude>ua/lpnu/coffevan/util/CoverageReporter*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
