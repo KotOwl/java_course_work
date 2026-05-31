@@ -11,8 +11,8 @@
         }
     ],
     "java.test.coverage.exclude": [
-        "**/ui/**",
-        "**/App.java",
-        "**/CoverageReporter.java"
+        "src/main/java/ua/lpnu/coffevan/ui/**",
+        "src/main/java/ua/lpnu/coffevan/App.java",
+        "src/main/java/ua/lpnu/coffevan/util/CoverageReporter.java"
     ]
 }
