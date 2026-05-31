@@ -16,6 +16,12 @@
         "ua.lpnu.coffevan.util.CoverageReporter",
         "src/main/java/ua/lpnu/coffevan/ui/**",
         "src/main/java/ua/lpnu/coffevan/App.java",
-        "src/main/java/ua/lpnu/coffevan/util/CoverageReporter.java"
+        "src/main/java/ua/lpnu/coffevan/util/CoverageReporter.java",
+        "**/ua/lpnu/coffevan/ui/**",
+        "**/ua/lpnu/coffevan/util/CoverageReporter.java",
+        "**/*ui*",
+        "**/*App*",
+        "**/*Reporter*",
+        "ua/lpnu/coffevan/ui/**"
     ]
 }
