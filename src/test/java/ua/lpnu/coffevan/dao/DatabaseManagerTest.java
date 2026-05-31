@@ -125,4 +125,26 @@ class DatabaseManagerTest {
         assertNotNull(newManager);
         assertFalse(newManager.getConnection().isClosed());
     }
+
+    @Test
+    @Order(10)
+    void constructor_whenSQLException_throwsRuntimeException() {
+        SQLException sqlException = new SQLException("Mocked DB connection failure");
+        try (var mockedDriverManager = org.mockito.Mockito.mockStatic(DriverManager.class)) {
+            mockedDriverManager.when(() -> DriverManager.getConnection(org.mockito.Mockito.anyString()))
+                    .thenThrow(sqlException);
+            
+            // We must first reset the instance to null so the constructor gets called
+            java.lang.reflect.Field field = DatabaseManager.class.getDeclaredField("instance");
+            field.setAccessible(true);
+            field.set(null, null);
+            
+            assertThrows(RuntimeException.class, () -> DatabaseManager.getInstance());
+            
+            // Clean up the instance after test
+            field.set(null, null);
+        } catch (Exception e) {
+            fail(e);
+        }
+    }
 }
