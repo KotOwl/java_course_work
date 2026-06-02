@@ -153,7 +153,7 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
     @Test
     void vanSettingsDialog_saveValidValues_updatesVan() {
         clickOn("⚙  Налаштування");
-        var textFields = lookup(".text-field").queryAllAs(javafx.scene.control.TextField.class);
+        var textFields = lookup(".dialog-pane .text-field").queryAllAs(javafx.scene.control.TextField.class);
         var list = new java.util.ArrayList<>(textFields);
         assertFalse(list.isEmpty());
 
@@ -173,7 +173,7 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
 
         // Restore old settings
         clickOn("⚙  Налаштування");
-        textFields = lookup(".text-field").queryAllAs(javafx.scene.control.TextField.class);
+        textFields = lookup(".dialog-pane .text-field").queryAllAs(javafx.scene.control.TextField.class);
         list = new java.util.ArrayList<>(textFields);
         doubleClickOn(list.get(0)).write(String.valueOf(oldVol));
         doubleClickOn(list.get(1)).write(String.valueOf(oldBud));
@@ -183,7 +183,7 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
     @Test
     void vanSettingsDialog_invalidInput_showsErrorAlert() {
         clickOn("⚙  Налаштування");
-        var textFields = lookup(".text-field").queryAllAs(javafx.scene.control.TextField.class);
+        var textFields = lookup(".dialog-pane .text-field").queryAllAs(javafx.scene.control.TextField.class);
         var list = new java.util.ArrayList<>(textFields);
 
         doubleClickOn(list.get(0)).write("invalid");
