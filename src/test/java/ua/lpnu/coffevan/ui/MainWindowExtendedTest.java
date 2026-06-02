@@ -134,7 +134,7 @@ class MainWindowExtendedTest extends ApplicationTest {
     @Test
     void searchField_typing_filtersTableByName() {
         javafx.scene.control.TextField sf =
-                lookup(".search-field").queryAs(javafx.scene.control.TextField.class);
+                lookup("#searchField").queryAs(javafx.scene.control.TextField.class);
         interact(() -> sf.setText("Arabica"));
         assertEquals("Arabica", sf.getText());
         clickOn("✕ Скинути");
@@ -145,7 +145,7 @@ class MainWindowExtendedTest extends ApplicationTest {
     @Test
     void resetFilter_clearsSearchField() {
         javafx.scene.control.TextField sf =
-                lookup(".search-field").queryAs(javafx.scene.control.TextField.class);
+                lookup("#searchField").queryAs(javafx.scene.control.TextField.class);
         interact(() -> sf.setText("test"));
         clickOn("✕ Скинути");
         assertEquals("", sf.getText());

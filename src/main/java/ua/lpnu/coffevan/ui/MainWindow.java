@@ -283,6 +283,7 @@ public class MainWindow {
 
         // ─ search field ──
         searchField = new TextField();
+        searchField.setId("searchField");
         searchField.setPromptText("🔎 Назва / тип...");
         searchField.getStyleClass().add("search-field");
         searchField.setPrefWidth(180);
@@ -321,6 +322,7 @@ public class MainWindow {
 
         // ─ max price field ──
         maxPriceField = new TextField();
+        maxPriceField.setId("maxPriceField");
         maxPriceField.setPromptText("макс ціна");
         maxPriceField.getStyleClass().add("search-field");
         maxPriceField.setPrefWidth(100);
