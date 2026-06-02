@@ -1,8 +1,8 @@
 # Звіт про покриття коду тестами (JaCoCo)
 
 ## Загальна статистика
-- **Покриття інструкцій (Instructions):** 80.27% (6685/8328)
-- **Покриття розгалужень (Branches):** 57.78% (219/379)
+- **Покриття інструкцій (Instructions):** 80.58% (6711/8328)
+- **Покриття розгалужень (Branches):** 58.05% (220/379)
 
 ## Детальний звіт по класах
 
@@ -16,7 +16,7 @@
 | `CoffeeRepositoryImpl` | `ua.lpnu.coffevan.repository` | 98.76% (476/482) | 75.76% (25/33) |
 | `CoffeeRequest` | `ua.lpnu.coffevan.dto` | 0.00% (0/96) | N/A |
 | `CoffeeResponse` | `ua.lpnu.coffevan.dto` | 0.00% (0/145) | N/A |
-| `CoverageReporter` | `ua.lpnu.coffevan.util` | 90.95% (412/453) | 87.88% (29/33) |
+| `CoverageReporter` | `ua.lpnu.coffevan.util` | 96.69% (438/453) | 90.91% (30/33) |
 | `CoverageReporter.ClassCoverage` | `ua.lpnu.coffevan.util` | 100.00% (30/30) | N/A |
 | `DatabaseManager` | `ua.lpnu.coffevan.repository` | 100.00% (91/91) | 66.67% (4/6) |
 | `GroundCoffee` | `ua.lpnu.coffevan.model` | 100.00% (37/37) | N/A |

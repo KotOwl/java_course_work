@@ -151,8 +151,10 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
     // ── Van Settings Dialog ───────────────────────────────────────────────
 
     @Test
-    void vanSettingsDialog_saveValidValues_updatesVan() {
+    void vanSettingsDialog_saveValidValues_updatesVan() throws Exception {
         clickOn("⚙  Налаштування");
+        org.testfx.util.WaitForAsyncUtils.waitFor(5, java.util.concurrent.TimeUnit.SECONDS,
+                () -> !lookup(".dialog-pane").queryAll().isEmpty());
         var textFields = lookup(".dialog-pane .text-field").queryAllAs(javafx.scene.control.TextField.class);
         var list = new java.util.ArrayList<>(textFields);
         assertFalse(list.isEmpty());
@@ -173,6 +175,8 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
 
         // Restore old settings
         clickOn("⚙  Налаштування");
+        org.testfx.util.WaitForAsyncUtils.waitFor(5, java.util.concurrent.TimeUnit.SECONDS,
+                () -> !lookup(".dialog-pane").queryAll().isEmpty());
         textFields = lookup(".dialog-pane .text-field").queryAllAs(javafx.scene.control.TextField.class);
         list = new java.util.ArrayList<>(textFields);
         doubleClickOn(list.get(0)).write(String.valueOf(oldVol));
@@ -181,8 +185,10 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
     }
 
     @Test
-    void vanSettingsDialog_invalidInput_showsErrorAlert() {
+    void vanSettingsDialog_invalidInput_showsErrorAlert() throws Exception {
         clickOn("⚙  Налаштування");
+        org.testfx.util.WaitForAsyncUtils.waitFor(5, java.util.concurrent.TimeUnit.SECONDS,
+                () -> !lookup(".dialog-pane").queryAll().isEmpty());
         var textFields = lookup(".dialog-pane .text-field").queryAllAs(javafx.scene.control.TextField.class);
         var list = new java.util.ArrayList<>(textFields);
 

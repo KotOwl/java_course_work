@@ -137,7 +137,7 @@ class MainWindowExtendedTest extends ApplicationTest {
                 lookup("#searchField").queryAs(javafx.scene.control.TextField.class);
         interact(() -> sf.setText("Arabica"));
         assertEquals("Arabica", sf.getText());
-        clickOn("✕ Скинути");
+        clickOn("#resetBtn");
     }
 
     // ── Max price filter ───────────────────────────────────────────────────
@@ -147,7 +147,7 @@ class MainWindowExtendedTest extends ApplicationTest {
         javafx.scene.control.TextField sf =
                 lookup("#searchField").queryAs(javafx.scene.control.TextField.class);
         interact(() -> sf.setText("test"));
-        clickOn("✕ Скинути");
+        clickOn("#resetBtn");
         assertEquals("", sf.getText());
     }
 
@@ -160,6 +160,6 @@ class MainWindowExtendedTest extends ApplicationTest {
         clickOn(slider);
         press(javafx.scene.input.KeyCode.RIGHT);
         assertFalse(listWindows().isEmpty());
-        clickOn("✕ Скинути");
+        clickOn("#resetBtn");
     }
 }

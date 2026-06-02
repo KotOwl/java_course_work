@@ -330,6 +330,7 @@ public class MainWindow {
 
         // ─ reset button ──
         Button resetBtn = new Button("✕ Скинути");
+        resetBtn.setId("resetBtn");
         resetBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #a08060; " +
                 "-fx-font-size: 11px; -fx-cursor: hand; -fx-border-color: #d5c9bc; " +
                 "-fx-border-radius: 4; -fx-padding: 4 8 4 8;");
