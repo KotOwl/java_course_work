@@ -1,4 +1,4 @@
-package ua.lpnu.coffevan.dao;
+package ua.lpnu.coffevan.repository;
 
 import org.junit.jupiter.api.*;
 import ua.lpnu.coffevan.model.*;
@@ -12,10 +12,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class CoffeeDaoImplTest {
+class CoffeeRepositoryImplTest {
 
     private static Connection connection;
-    private static CoffeeDaoImpl dao;
+    private static CoffeeRepositoryImpl dao;
 
     @BeforeAll
     static void setUpDb() throws SQLException {
@@ -36,7 +36,7 @@ class CoffeeDaoImplTest {
                 );
                 """;
         connection.createStatement().execute(createTable);
-        dao = new CoffeeDaoImpl(connection);
+        dao = new CoffeeRepositoryImpl(connection);
     }
 
     @AfterAll
@@ -137,30 +137,25 @@ class CoffeeDaoImplTest {
         dao.deleteAll();
         assertEquals(0, dao.findAll().size());
     }
+
     @Test
     @Order(10)
     void mapRow_withUnknownType_throwsIllegalStateException() throws SQLException {
-        // Manually insert a row with an invalid coffee type
         String sql = "INSERT INTO coffee (coffee_type, name, price_per_kg, weight_kg, volume_liters, packaging, quality_score) " +
                      "VALUES ('Unknown', 'BadCoffee', 100, 1.0, 1.0, 'PACKAGE', 50)";
         connection.createStatement().execute(sql);
-        
-        // Retrieve it via findAll to trigger mapRow
         assertThrows(IllegalStateException.class, () -> dao.findAll());
     }
 
     @Test
     @Order(11)
     void save_withGenericCoffeeSubclass_hitsElseInFillCommonFields() {
-        // Create an anonymous subclass of Coffee
         Coffee genericCoffee = new Coffee("Generic", 150.0, 0.5, 0.5, PackagingType.BOX, 70) {
             @Override
             public String getCoffeeType() {
                 return "GenericType";
             }
         };
-        
-        // This should run successfully and hit the else block in fillCommonFields
         int id = dao.save(genericCoffee);
         assertTrue(id > 0);
     }
@@ -175,26 +170,15 @@ class CoffeeDaoImplTest {
                 .thenThrow(new SQLException("Mocked DB error"));
         org.mockito.Mockito.when(mockedConn.createStatement())
                 .thenThrow(new SQLException("Mocked DB error"));
-                
-        CoffeeDaoImpl exceptionDao = new CoffeeDaoImpl(mockedConn);
-        
-        // Test save
+
+        CoffeeRepositoryImpl exceptionDao = new CoffeeRepositoryImpl(mockedConn);
+
         BeanCoffee bc = new BeanCoffee("Arabica", 300, 1.0, 1.5, PackagingType.PACKAGE, 90, "Ethiopia", "Medium");
         assertEquals(-1, exceptionDao.save(bc));
-        
-        // Test findById
         assertTrue(exceptionDao.findById(1).isEmpty());
-        
-        // Test findAll
         assertTrue(exceptionDao.findAll().isEmpty());
-        
-        // Test update
         assertDoesNotThrow(() -> exceptionDao.update(bc));
-        
-        // Test delete
         assertDoesNotThrow(() -> exceptionDao.delete(1));
-        
-        // Test deleteAll
         assertDoesNotThrow(() -> exceptionDao.deleteAll());
     }
 }

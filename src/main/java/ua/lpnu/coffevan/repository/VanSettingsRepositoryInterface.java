@@ -1,11 +1,11 @@
-package ua.lpnu.coffevan.dao;
+package ua.lpnu.coffevan.repository;
 
 import ua.lpnu.coffevan.model.Van;
 
 /**
  * Contract for loading and persisting Van settings.
  */
-public interface VanSettingsDaoInterface {
+public interface VanSettingsRepositoryInterface {
 
     Van load();
 

@@ -1,4 +1,4 @@
-package ua.lpnu.coffevan.dao;
+package ua.lpnu.coffevan.repository;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * SQLite implementation of {@link CoffeeDao}.
+ * SQLite implementation of {@link CoffeeRepository}.
  *
  * <p>Column mapping for {@code extra1}, {@code extra2}, {@code extra3}:
  * <ul>
@@ -20,13 +20,13 @@ import java.util.Optional;
  *   <li>InstantCoffeeSachet – extra1=sachetsCount (int as text)</li>
  * </ul>
  */
-public class CoffeeDaoImpl implements CoffeeDao {
+public class CoffeeRepositoryImpl implements CoffeeRepository {
 
-    private static final Logger logger = LogManager.getLogger(CoffeeDaoImpl.class);
+    private static final Logger logger = LogManager.getLogger(CoffeeRepositoryImpl.class);
 
     private final Connection connection;
 
-    public CoffeeDaoImpl(Connection connection) {
+    public CoffeeRepositoryImpl(Connection connection) {
         this.connection = connection;
     }
 

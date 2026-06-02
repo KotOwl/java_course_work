@@ -2,8 +2,8 @@ package ua.lpnu.coffevan.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ua.lpnu.coffevan.dao.CoffeeDao;
-import ua.lpnu.coffevan.dao.VanSettingsDaoInterface;
+import ua.lpnu.coffevan.repository.CoffeeRepository;
+import ua.lpnu.coffevan.repository.VanSettingsRepositoryInterface;
 import ua.lpnu.coffevan.model.Coffee;
 import ua.lpnu.coffevan.model.Van;
 
@@ -19,11 +19,11 @@ public class VanService {
 
     private static final Logger logger = LogManager.getLogger(VanService.class);
 
-    private final CoffeeDao coffeeDao;
-    private final VanSettingsDaoInterface vanSettingsDao;
+    private final CoffeeRepository coffeeDao;
+    private final VanSettingsRepositoryInterface vanSettingsDao;
     private Van van;
 
-    public VanService(CoffeeDao coffeeDao, VanSettingsDaoInterface vanSettingsDao) {
+    public VanService(CoffeeRepository coffeeDao, VanSettingsRepositoryInterface vanSettingsDao) {
         this.coffeeDao = coffeeDao;
         this.vanSettingsDao = vanSettingsDao;
         this.van = vanSettingsDao.load();

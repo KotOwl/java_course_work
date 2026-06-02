@@ -1,4 +1,4 @@
-package ua.lpnu.coffevan.dao;
+package ua.lpnu.coffevan.repository;
 
 import ua.lpnu.coffevan.model.*;
 
@@ -8,7 +8,7 @@ import java.util.Optional;
 /**
  * Data Access Object interface for Coffee entities.
  */
-public interface CoffeeDao {
+public interface CoffeeRepository {
 
     int save(Coffee coffee);
 

@@ -1,4 +1,4 @@
-package ua.lpnu.coffevan.dao;
+package ua.lpnu.coffevan.repository;
 
 import org.junit.jupiter.api.*;
 import ua.lpnu.coffevan.model.Van;
@@ -9,10 +9,10 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class VanSettingsDaoTest {
+class VanSettingsRepositoryTest {
 
     private static Connection connection;
-    private static VanSettingsDao dao;
+    private static VanSettingsRepository dao;
 
     @BeforeAll
     static void setUpDb() throws SQLException {
@@ -27,7 +27,7 @@ class VanSettingsDaoTest {
         connection.createStatement().execute(createTable);
         connection.createStatement().execute(
                 "INSERT INTO van_settings (id, max_volume, max_budget) VALUES (1, 1000.0, 50000.0)");
-        dao = new VanSettingsDao(connection);
+        dao = new VanSettingsRepository(connection);
     }
 
     @AfterAll
@@ -59,8 +59,8 @@ class VanSettingsDaoTest {
         Connection mockedConn = org.mockito.Mockito.mock(Connection.class);
         org.mockito.Mockito.when(mockedConn.prepareStatement(org.mockito.Mockito.anyString()))
                 .thenThrow(new SQLException("Mocked DB error"));
-        VanSettingsDao exceptionDao = new VanSettingsDao(mockedConn);
-        
+        VanSettingsRepository exceptionDao = new VanSettingsRepository(mockedConn);
+
         Van van = exceptionDao.load();
         assertEquals(1000.0, van.getMaxVolumeLiters(), 0.001);
         assertEquals(50000.0, van.getMaxBudget(), 0.001);
@@ -71,8 +71,8 @@ class VanSettingsDaoTest {
         Connection mockedConn = org.mockito.Mockito.mock(Connection.class);
         org.mockito.Mockito.when(mockedConn.prepareStatement(org.mockito.Mockito.anyString()))
                 .thenThrow(new SQLException("Mocked DB error"));
-        VanSettingsDao exceptionDao = new VanSettingsDao(mockedConn);
-        
+        VanSettingsRepository exceptionDao = new VanSettingsRepository(mockedConn);
+
         assertDoesNotThrow(() -> exceptionDao.save(new Van(2000.0, 100000.0)));
     }
 }

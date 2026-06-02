@@ -1,4 +1,4 @@
-package ua.lpnu.coffevan.dao;
+package ua.lpnu.coffevan.repository;
 
 import org.junit.jupiter.api.*;
 
@@ -21,7 +21,6 @@ class DatabaseManagerTest {
 
     @BeforeAll
     static void acquireInstance() {
-        // Always returns the same singleton
         manager = DatabaseManager.getInstance();
     }
 
@@ -88,7 +87,6 @@ class DatabaseManagerTest {
     void schema_coffeeTableHasExpectedColumns() throws SQLException {
         Connection conn = manager.getConnection();
         DatabaseMetaData meta = conn.getMetaData();
-        // Collect column names
         java.util.Set<String> cols = new java.util.HashSet<>();
         try (ResultSet rs = meta.getColumns(null, null, "coffee", null)) {
             while (rs.next()) {
@@ -111,16 +109,14 @@ class DatabaseManagerTest {
     void close_closesConnectionAndResettingInstanceAllowsRecreation() throws Exception {
         DatabaseManager currentManager = DatabaseManager.getInstance();
         assertFalse(currentManager.getConnection().isClosed());
-        
+
         currentManager.close();
         assertTrue(currentManager.getConnection().isClosed());
-        
-        // Reset the singleton instance using reflection so other tests (or runs) get a fresh, working manager
+
         java.lang.reflect.Field field = DatabaseManager.class.getDeclaredField("instance");
         field.setAccessible(true);
         field.set(null, null);
-        
-        // Check that getting instance again yields a new, open connection
+
         DatabaseManager newManager = DatabaseManager.getInstance();
         assertNotNull(newManager);
         assertFalse(newManager.getConnection().isClosed());
@@ -133,15 +129,13 @@ class DatabaseManagerTest {
         try (var mockedDriverManager = org.mockito.Mockito.mockStatic(DriverManager.class)) {
             mockedDriverManager.when(() -> DriverManager.getConnection(org.mockito.Mockito.anyString()))
                     .thenThrow(sqlException);
-            
-            // We must first reset the instance to null so the constructor gets called
+
             java.lang.reflect.Field field = DatabaseManager.class.getDeclaredField("instance");
             field.setAccessible(true);
             field.set(null, null);
-            
+
             assertThrows(RuntimeException.class, () -> DatabaseManager.getInstance());
-            
-            // Clean up the instance after test
+
             field.set(null, null);
         } catch (Exception e) {
             fail(e);
@@ -155,17 +149,15 @@ class DatabaseManagerTest {
         Connection mockedConn = org.mockito.Mockito.mock(Connection.class);
         org.mockito.Mockito.when(mockedConn.isClosed()).thenReturn(false);
         org.mockito.Mockito.doThrow(new SQLException("Mocked close error")).when(mockedConn).close();
-        
-        // Inject mock connection
+
         java.lang.reflect.Field connField = DatabaseManager.class.getDeclaredField("connection");
         connField.setAccessible(true);
         Connection originalConn = (Connection) connField.get(currentManager);
         connField.set(currentManager, mockedConn);
-        
+
         try {
             assertDoesNotThrow(() -> currentManager.close());
         } finally {
-            // Restore original connection and reset instance
             connField.set(currentManager, originalConn);
             java.lang.reflect.Field field = DatabaseManager.class.getDeclaredField("instance");
             field.setAccessible(true);
@@ -173,4 +165,3 @@ class DatabaseManagerTest {
         }
     }
 }
-

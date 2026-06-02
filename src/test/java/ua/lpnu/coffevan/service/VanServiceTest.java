@@ -2,8 +2,8 @@ package ua.lpnu.coffevan.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ua.lpnu.coffevan.dao.CoffeeDao;
-import ua.lpnu.coffevan.dao.VanSettingsDaoInterface;
+import ua.lpnu.coffevan.repository.CoffeeRepository;
+import ua.lpnu.coffevan.repository.VanSettingsRepositoryInterface;
 import ua.lpnu.coffevan.model.*;
 
 import java.util.*;
@@ -312,7 +312,7 @@ class VanServiceTest {
 
     // ---- Stub implementations ----
 
-    static class StubCoffeeDao implements CoffeeDao {
+    static class StubCoffeeDao implements CoffeeRepository {
         final Map<Integer, Coffee> store = new LinkedHashMap<>();
         final List<Coffee> saved = new ArrayList<>();
         private int nextId = 1;
@@ -351,7 +351,7 @@ class VanServiceTest {
         }
     }
 
-    static class StubVanSettingsDao implements VanSettingsDaoInterface {
+    static class StubVanSettingsDao implements VanSettingsRepositoryInterface {
         private final Van van;
         Van saved;
 

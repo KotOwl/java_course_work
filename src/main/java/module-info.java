@@ -14,7 +14,9 @@ module ua.lpnu.coffevan {
     exports ua.lpnu.coffevan;
     exports ua.lpnu.coffevan.model;
     exports ua.lpnu.coffevan.service;
-    exports ua.lpnu.coffevan.dao;
+    exports ua.lpnu.coffevan.repository;
+    exports ua.lpnu.coffevan.controller;
+    exports ua.lpnu.coffevan.dto;
     exports ua.lpnu.coffevan.ui;
     exports ua.lpnu.coffevan.util;
 }

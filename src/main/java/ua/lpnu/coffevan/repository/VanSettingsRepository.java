@@ -1,4 +1,4 @@
-package ua.lpnu.coffevan.dao;
+package ua.lpnu.coffevan.repository;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,15 +10,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * DAO for persisting Van capacity settings.
+ * Repository for persisting Van capacity settings.
  */
-public class VanSettingsDao implements VanSettingsDaoInterface {
+public class VanSettingsRepository implements VanSettingsRepositoryInterface {
 
-    private static final Logger logger = LogManager.getLogger(VanSettingsDao.class);
+    private static final Logger logger = LogManager.getLogger(VanSettingsRepository.class);
 
     private final Connection connection;
 
-    public VanSettingsDao(Connection connection) {
+    public VanSettingsRepository(Connection connection) {
         this.connection = connection;
     }
 

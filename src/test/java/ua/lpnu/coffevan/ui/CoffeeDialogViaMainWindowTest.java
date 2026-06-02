@@ -4,9 +4,9 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.testfx.framework.junit5.ApplicationTest;
-import ua.lpnu.coffevan.dao.CoffeeDaoImpl;
-import ua.lpnu.coffevan.dao.DatabaseManager;
-import ua.lpnu.coffevan.dao.VanSettingsDao;
+import ua.lpnu.coffevan.repository.CoffeeRepositoryImpl;
+import ua.lpnu.coffevan.repository.DatabaseManager;
+import ua.lpnu.coffevan.repository.VanSettingsRepository;
 import ua.lpnu.coffevan.model.*;
 import ua.lpnu.coffevan.service.VanService;
 
@@ -26,8 +26,8 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
     @Override
     public void start(Stage stage) {
         DatabaseManager db = DatabaseManager.getInstance();
-        CoffeeDaoImpl coffeeDao = new CoffeeDaoImpl(db.getConnection());
-        VanSettingsDao vanSettingsDao = new VanSettingsDao(db.getConnection());
+        CoffeeRepositoryImpl coffeeDao = new CoffeeRepositoryImpl(db.getConnection());
+        VanSettingsRepository vanSettingsDao = new VanSettingsRepository(db.getConnection());
         vanService = new VanService(coffeeDao, vanSettingsDao);
         vanService.clearVan();
 
