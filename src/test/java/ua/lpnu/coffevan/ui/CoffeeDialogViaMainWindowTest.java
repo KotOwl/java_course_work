@@ -25,6 +25,7 @@ class CoffeeDialogViaMainWindowTest extends ApplicationTest {
 
     @Override
     public void start(Stage stage) {
+        DatabaseManager.setDbUrl("jdbc:sqlite::memory:");
         DatabaseManager db = DatabaseManager.getInstance();
         CoffeeRepositoryImpl coffeeDao = new CoffeeRepositoryImpl(db.getConnection());
         VanSettingsRepository vanSettingsDao = new VanSettingsRepository(db.getConnection());

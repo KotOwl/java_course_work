@@ -15,21 +15,21 @@ import java.sql.Statement;
 public class DatabaseManager {
 
     private static final Logger logger = LogManager.getLogger(DatabaseManager.class);
-    private static final String DB_URL = "jdbc:sqlite:coffee_van.db";
+    private static String dbUrl = "jdbc:sqlite:coffee_van.db";
 
     private static DatabaseManager instance;
     private Connection connection;
 
     private DatabaseManager() {
         try {
-            connection = DriverManager.getConnection(DB_URL);
-            logger.info("Connected to SQLite database: {}", DB_URL);
+            connection = DriverManager.getConnection(dbUrl);
+            logger.info("Connected to SQLite database: {}", dbUrl);
             initSchema();
         } catch (SQLException e) {
             logger.fatal("Cannot connect to database", e);
             SmtpEmailNotifier.sendCriticalAlert(
                     "Coffee Van – Fatal DB Error",
-                    "Cannot connect to SQLite database '" + DB_URL + "'.\n" + e.getMessage());
+                    "Cannot connect to SQLite database '" + dbUrl + "'.\n" + e.getMessage());
             throw new RuntimeException("Cannot connect to database", e);
         }
     }
@@ -40,6 +40,18 @@ public class DatabaseManager {
             instance = new DatabaseManager();
         }
         return instance;
+    }
+
+    /**
+     * Sets the database URL and resets the singleton instance.
+     * Useful for isolating tests with an in-memory database.
+     */
+    public static synchronized void setDbUrl(String url) {
+        dbUrl = url;
+        if (instance != null) {
+            instance.close();
+            instance = null;
+        }
     }
 
     public Connection getConnection() {
