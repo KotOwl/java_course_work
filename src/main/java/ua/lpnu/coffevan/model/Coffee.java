@@ -9,6 +9,7 @@ import java.util.Objects;
 public abstract class Coffee {
 
     private int id;
+    private int vanId = 1;
     private String name;
     private double pricePerKg;
     private double weightKg;
@@ -48,6 +49,14 @@ public abstract class Coffee {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getVanId() {
+        return vanId;
+    }
+
+    public void setVanId(int vanId) {
+        this.vanId = vanId;
     }
 
     public String getName() {

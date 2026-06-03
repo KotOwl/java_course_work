@@ -59,22 +59,6 @@ public class DatabaseManager {
     }
 
     private void initSchema() throws SQLException {
-        String createCoffee = """
-                CREATE TABLE IF NOT EXISTS coffee (
-                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                    coffee_type   TEXT    NOT NULL,
-                    name          TEXT    NOT NULL,
-                    price_per_kg  REAL    NOT NULL,
-                    weight_kg     REAL    NOT NULL,
-                    volume_liters REAL    NOT NULL,
-                    packaging     TEXT    NOT NULL,
-                    quality_score INTEGER NOT NULL,
-                    extra1        TEXT,
-                    extra2        TEXT,
-                    extra3        TEXT
-                );
-                """;
-
         String createVan = """
                 CREATE TABLE IF NOT EXISTS van_settings (
                     id            INTEGER PRIMARY KEY,
@@ -88,12 +72,49 @@ public class DatabaseManager {
                 VALUES (1, 1000.0, 50000.0);
                 """;
 
+        String createCoffee = """
+                CREATE TABLE IF NOT EXISTS coffee (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    van_id        INTEGER NOT NULL DEFAULT 1,
+                    coffee_type   TEXT    NOT NULL,
+                    name          TEXT    NOT NULL,
+                    price_per_kg  REAL    NOT NULL,
+                    weight_kg     REAL    NOT NULL,
+                    volume_liters REAL    NOT NULL,
+                    packaging     TEXT    NOT NULL,
+                    quality_score INTEGER NOT NULL,
+                    extra1        TEXT,
+                    extra2        TEXT,
+                    extra3        TEXT,
+                    FOREIGN KEY (van_id) REFERENCES van_settings (id) ON DELETE CASCADE
+                );
+                """;
+
         try (Statement stmt = connection.createStatement()) {
-            stmt.execute(createCoffee);
+            stmt.execute("PRAGMA foreign_keys = ON;");
             stmt.execute(createVan);
             stmt.execute(insertVan);
+            stmt.execute(createCoffee);
+
+            // Migration: Add van_id column to existing table if it doesn't exist
+            if (!hasColumn("coffee", "van_id")) {
+                stmt.execute("ALTER TABLE coffee ADD COLUMN van_id INTEGER DEFAULT 1;");
+                logger.info("Migrated coffee table: added van_id column");
+            }
             logger.info("Database schema initialised");
         }
+    }
+
+    private boolean hasColumn(String tableName, String columnName) throws SQLException {
+        try (Statement stmt = connection.createStatement();
+             java.sql.ResultSet rs = stmt.executeQuery("PRAGMA table_info(" + tableName + ")")) {
+            while (rs.next()) {
+                if (columnName.equalsIgnoreCase(rs.getString("name"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public void close() {

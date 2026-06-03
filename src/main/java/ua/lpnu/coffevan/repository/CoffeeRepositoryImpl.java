@@ -34,12 +34,13 @@ public class CoffeeRepositoryImpl implements CoffeeRepository {
     public int save(Coffee coffee) {
         String sql = """
                 INSERT INTO coffee
-                    (coffee_type, name, price_per_kg, weight_kg, volume_liters,
+                    (van_id, coffee_type, name, price_per_kg, weight_kg, volume_liters,
                      packaging, quality_score, extra1, extra2, extra3)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            fillCommonFields(ps, coffee);
+            ps.setInt(1, coffee.getVanId());
+            fillCommonFields(ps, coffee, 1);
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) {
@@ -89,13 +90,14 @@ public class CoffeeRepositoryImpl implements CoffeeRepository {
     public void update(Coffee coffee) {
         String sql = """
                 UPDATE coffee SET
-                    coffee_type=?, name=?, price_per_kg=?, weight_kg=?, volume_liters=?,
+                    van_id=?, coffee_type=?, name=?, price_per_kg=?, weight_kg=?, volume_liters=?,
                     packaging=?, quality_score=?, extra1=?, extra2=?, extra3=?
                 WHERE id=?
                 """;
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            fillCommonFields(ps, coffee);
-            ps.setInt(11, coffee.getId());
+            ps.setInt(1, coffee.getVanId());
+            fillCommonFields(ps, coffee, 1);
+            ps.setInt(12, coffee.getId());
             ps.executeUpdate();
             logger.info("Updated coffee id={}: {}", coffee.getId(), coffee.getName());
         } catch (SQLException e) {
@@ -126,40 +128,41 @@ public class CoffeeRepositoryImpl implements CoffeeRepository {
         }
     }
 
-    private void fillCommonFields(PreparedStatement ps, Coffee coffee) throws SQLException {
-        ps.setString(1, coffee.getCoffeeType());
-        ps.setString(2, coffee.getName());
-        ps.setDouble(3, coffee.getPricePerKg());
-        ps.setDouble(4, coffee.getWeightKg());
-        ps.setDouble(5, coffee.getVolumeLiters());
-        ps.setString(6, coffee.getPackagingType().name());
-        ps.setInt(7, coffee.getQualityScore());
+    private void fillCommonFields(PreparedStatement ps, Coffee coffee, int offset) throws SQLException {
+        ps.setString(offset + 1, coffee.getCoffeeType());
+        ps.setString(offset + 2, coffee.getName());
+        ps.setDouble(offset + 3, coffee.getPricePerKg());
+        ps.setDouble(offset + 4, coffee.getWeightKg());
+        ps.setDouble(offset + 5, coffee.getVolumeLiters());
+        ps.setString(offset + 6, coffee.getPackagingType().name());
+        ps.setInt(offset + 7, coffee.getQualityScore());
 
         if (coffee instanceof BeanCoffee bc) {
-            ps.setString(8, bc.getOrigin());
-            ps.setString(9, bc.getRoastLevel());
-            ps.setNull(10, Types.VARCHAR);
+            ps.setString(offset + 8, bc.getOrigin());
+            ps.setString(offset + 9, bc.getRoastLevel());
+            ps.setNull(offset + 10, Types.VARCHAR);
         } else if (coffee instanceof GroundCoffee gc) {
-            ps.setString(8, gc.getGrindSize());
-            ps.setNull(9, Types.VARCHAR);
-            ps.setNull(10, Types.VARCHAR);
+            ps.setString(offset + 8, gc.getGrindSize());
+            ps.setNull(offset + 9, Types.VARCHAR);
+            ps.setNull(offset + 10, Types.VARCHAR);
         } else if (coffee instanceof InstantCoffeeJar ij) {
-            ps.setString(8, String.valueOf(ij.getGranules()));
-            ps.setNull(9, Types.VARCHAR);
-            ps.setNull(10, Types.VARCHAR);
+            ps.setString(offset + 8, String.valueOf(ij.getGranules()));
+            ps.setNull(offset + 9, Types.VARCHAR);
+            ps.setNull(offset + 10, Types.VARCHAR);
         } else if (coffee instanceof InstantCoffeeSachet is) {
-            ps.setString(8, String.valueOf(is.getSachetsCount()));
-            ps.setNull(9, Types.VARCHAR);
-            ps.setNull(10, Types.VARCHAR);
+            ps.setString(offset + 8, String.valueOf(is.getSachetsCount()));
+            ps.setNull(offset + 9, Types.VARCHAR);
+            ps.setNull(offset + 10, Types.VARCHAR);
         } else {
-            ps.setNull(8, Types.VARCHAR);
-            ps.setNull(9, Types.VARCHAR);
-            ps.setNull(10, Types.VARCHAR);
+            ps.setNull(offset + 8, Types.VARCHAR);
+            ps.setNull(offset + 9, Types.VARCHAR);
+            ps.setNull(offset + 10, Types.VARCHAR);
         }
     }
 
     private Coffee mapRow(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
+        int vanId = rs.getInt("van_id");
         String type = rs.getString("coffee_type");
         String name = rs.getString("name");
         double pricePerKg = rs.getDouble("price_per_kg");
@@ -186,6 +189,7 @@ public class CoffeeRepositoryImpl implements CoffeeRepository {
         };
 
         coffee.setId(id);
+        coffee.setVanId(vanId);
         return coffee;
     }
 }
