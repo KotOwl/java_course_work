@@ -66,16 +66,27 @@ public class SmtpEmailNotifier {
     }
 
     /**
-     * Sends a critical alert email.
-     * No-op if SMTP credentials are not configured.
+     * Sends a critical alert email to the configured admin recipient.
      *
      * @param subject email subject
      * @param body    email body
      */
     public static void sendCriticalAlert(String subject, String body) {
+        sendEmail(getMailTo(), "[CoffeeVan] " + subject, body);
+    }
+
+    /**
+     * Sends an email to a custom recipient.
+     *
+     * @param to      recipient email address
+     * @param subject email subject
+     * @param body    email body
+     * @return true if sent successfully, false otherwise
+     */
+    public static boolean sendEmail(String to, String subject, String body) {
         if (getSmtpPass().isEmpty()) {
-            logger.warn("SMTP password not configured — skipping email alert for: {}", subject);
-            return;
+            logger.warn("SMTP password not configured — skipping email sending to: {}", to);
+            return false;
         }
         try {
             Properties props = new Properties();
@@ -94,7 +105,7 @@ public class SmtpEmailNotifier {
 
             Class<?> interAddressClass = Class.forName("javax.mail.internet.InternetAddress");
             Object fromAddress = interAddressClass.getConstructor(String.class).newInstance(getSmtpUser());
-            Object toAddress = interAddressClass.getConstructor(String.class).newInstance(getMailTo());
+            Object toAddress = interAddressClass.getConstructor(String.class).newInstance(to);
 
             messageClass.getMethod("setFrom", Class.forName("javax.mail.Address")).invoke(message, fromAddress);
             messageClass.getMethod("setRecipient",
@@ -103,15 +114,27 @@ public class SmtpEmailNotifier {
                     Class.forName("javax.mail.Message$RecipientType")
                             .getField("TO").get(null),
                     toAddress);
-            messageClass.getMethod("setSubject", String.class).invoke(message, "[CoffeeVan] " + subject);
+            messageClass.getMethod("setSubject", String.class).invoke(message, subject);
             messageClass.getMethod("setText", String.class).invoke(message, body);
 
+            // Connect and send manually using Transport to support authentication
+            Object transport = sessionClass.getMethod("getTransport", String.class).invoke(session, "smtp");
             Class<?> transportClass = Class.forName("javax.mail.Transport");
-            transportClass.getMethod("send", Class.forName("javax.mail.Message")).invoke(null, message);
+            transportClass.getMethod("connect", String.class, int.class, String.class, String.class)
+                    .invoke(transport, getSmtpHost(), Integer.parseInt(getSmtpPort()), getSmtpUser(), getSmtpPass());
 
-            logger.info("Critical alert email sent to {}", getMailTo());
+            Class<?> addressArrayClass = Class.forName("[Ljavax.mail.Address;");
+            transportClass.getMethod("sendMessage",
+                    Class.forName("javax.mail.Message"),
+                    addressArrayClass).invoke(transport, message,
+                    messageClass.getMethod("getAllRecipients").invoke(message));
+            transportClass.getMethod("close").invoke(transport);
+
+            logger.info("Email sent successfully to {}", to);
+            return true;
         } catch (Exception e) {
-            logger.error("Failed to send critical alert email", e);
+            logger.error("Failed to send email to " + to, e);
+            return false;
         }
     }
 }

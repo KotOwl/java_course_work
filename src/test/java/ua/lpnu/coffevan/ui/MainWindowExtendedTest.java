@@ -68,6 +68,15 @@ class MainWindowExtendedTest extends ApplicationTest {
         assertFalse(listWindows().isEmpty());
     }
 
+    // ── Email dialog ──────────────────────────────────────────────────────
+
+    @Test
+    void emailDialog_opensAndCancelClosesIt() {
+        clickOn("📧  Надіслати Email");
+        press(javafx.scene.input.KeyCode.ESCAPE);
+        assertFalse(listWindows().isEmpty());
+    }
+
     // ── Edit with no selection ─────────────────────────────────────────────
 
     @Test

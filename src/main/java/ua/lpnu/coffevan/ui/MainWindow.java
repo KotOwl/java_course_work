@@ -114,11 +114,15 @@ public class MainWindow {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        Button emailBtn = new Button("📧  Надіслати Email");
+        emailBtn.getStyleClass().add("btn-settings");
+        emailBtn.setOnAction(e -> openEmailDialog());
+
         Button settingsBtn = new Button("⚙  Налаштування");
         settingsBtn.getStyleClass().add("btn-settings");
         settingsBtn.setOnAction(e -> openVanSettingsDialog());
 
-        header.getChildren().addAll(titleBox, spacer, settingsBtn);
+        header.getChildren().addAll(titleBox, spacer, emailBtn, settingsBtn);
         return header;
     }
 
@@ -717,6 +721,12 @@ public class MainWindow {
             updateCards();
             setStatus("⚙ Налаштування фургону оновлено");
         });
+    }
+
+    private void openEmailDialog() {
+        EmailDialog dialog = new EmailDialog();
+        dialog.initOwner(primaryStage);
+        dialog.showAndWait();
     }
 
     /** Exports the current (filtered) table view to a CSV file. */
