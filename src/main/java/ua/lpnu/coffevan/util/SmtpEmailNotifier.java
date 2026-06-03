@@ -16,6 +16,11 @@ import java.util.Properties;
 public class SmtpEmailNotifier {
 
     private static final Logger logger = LogManager.getLogger(SmtpEmailNotifier.class);
+    private static volatile String lastErrorMessage = null;
+
+    public static String getLastErrorMessage() {
+        return lastErrorMessage;
+    }
 
     static {
         loadDotEnv();
@@ -84,11 +89,23 @@ public class SmtpEmailNotifier {
      * @return true if sent successfully, false otherwise
      */
     public static boolean sendEmail(String to, String subject, String body) {
+        lastErrorMessage = null;
+        logger.info(">>> SmtpEmailNotifier.sendEmail called: To={}, Subject={}", to, subject);
+
         if (getSmtpPass().isEmpty()) {
-            logger.warn("SMTP password not configured — skipping email sending to: {}", to);
+            lastErrorMessage = "SMTP password not configured";
+            logger.warn("<<< SMTP password not configured — skipping email sending to: {}", to);
             return false;
         }
+
+        // Prevent sending real emails during Maven test runs
+        if (System.getProperty("surefire.real.class.path") != null && getSmtpHost().contains("gmail.com")) {
+            logger.info("<<< [Test Mode] Skipping real email sending to: {}", to);
+            return false;
+        }
+
         try {
+            logger.info("Step 1: Preparing properties for SMTP connection...");
             Properties props = new Properties();
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
@@ -96,12 +113,16 @@ public class SmtpEmailNotifier {
             props.put("mail.smtp.port", getSmtpPort());
             props.put("mail.smtp.connectiontimeout", "5000");
             props.put("mail.smtp.timeout", "5000");
+            logger.debug("Properties: {}", props);
 
+            logger.info("Step 2: Loading javax.mail.Session...");
             Class<?> sessionClass = Class.forName("javax.mail.Session");
             Class<?> authClass = Class.forName("javax.mail.Authenticator");
             Object session = sessionClass.getMethod("getInstance", Properties.class, authClass)
                     .invoke(null, props, null);
+            logger.info("Session created successfully.");
 
+            logger.info("Step 3: Creating MimeMessage...");
             Class<?> messageClass = Class.forName("javax.mail.internet.MimeMessage");
             Object message = messageClass.getConstructor(sessionClass).newInstance(session);
 
@@ -118,24 +139,33 @@ public class SmtpEmailNotifier {
                     toAddress);
             messageClass.getMethod("setSubject", String.class).invoke(message, subject);
             messageClass.getMethod("setText", String.class).invoke(message, body);
+            logger.info("MimeMessage prepared.");
 
-            // Connect and send manually using Transport to support authentication
+            logger.info("Step 4: Connecting via Transport.connect...");
             Object transport = sessionClass.getMethod("getTransport", String.class).invoke(session, "smtp");
             Class<?> transportClass = Class.forName("javax.mail.Transport");
+            
+            logger.info("Invoking connect({}:{}) as {}...", getSmtpHost(), getSmtpPort(), getSmtpUser());
             transportClass.getMethod("connect", String.class, int.class, String.class, String.class)
                     .invoke(transport, getSmtpHost(), Integer.parseInt(getSmtpPort()), getSmtpUser(), getSmtpPass());
+            logger.info("Connected successfully!");
 
+            logger.info("Step 5: Sending message...");
             Class<?> addressArrayClass = Class.forName("[Ljavax.mail.Address;");
             transportClass.getMethod("sendMessage",
                     Class.forName("javax.mail.Message"),
                     addressArrayClass).invoke(transport, message,
                     messageClass.getMethod("getAllRecipients").invoke(message));
-            transportClass.getMethod("close").invoke(transport);
+            logger.info("Message sent.");
 
-            logger.info("Email sent successfully to {}", to);
+            logger.info("Step 6: Closing transport...");
+            transportClass.getMethod("close").invoke(transport);
+            logger.info("<<< Email sent successfully to {}", to);
             return true;
-        } catch (Exception e) {
-            logger.error("Failed to send email to " + to, e);
+        } catch (Throwable e) {
+            Throwable cause = e.getCause() != null ? e.getCause() : e;
+            lastErrorMessage = cause.getClass().getSimpleName() + ": " + cause.getMessage();
+            logger.error("<<< Failed to send email to " + to, e);
             return false;
         }
     }

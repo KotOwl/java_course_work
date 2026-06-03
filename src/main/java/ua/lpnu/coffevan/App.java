@@ -26,6 +26,8 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         logger.info("Coffee Van application starting");
+
+        // Initialize dependencies
         DatabaseManager db = DatabaseManager.getInstance();
         CoffeeRepositoryImpl coffeeRepository = new CoffeeRepositoryImpl(db.getConnection());
         VanSettingsRepository vanSettingsRepository = new VanSettingsRepository(db.getConnection());

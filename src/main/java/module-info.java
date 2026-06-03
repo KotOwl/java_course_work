@@ -4,6 +4,7 @@ module ua.lpnu.coffevan {
     requires javafx.fxml;
     requires org.apache.logging.log4j;
     requires org.apache.logging.log4j.core;
+    requires java.mail;
     requires org.xerial.sqlitejdbc;
     requires transitive java.sql;
 
