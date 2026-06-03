@@ -17,6 +17,45 @@ public class SmtpEmailNotifier {
 
     private static final Logger logger = LogManager.getLogger(SmtpEmailNotifier.class);
 
+    static {
+        loadDotEnv();
+    }
+
+    private static void loadDotEnv() {
+        java.io.File envFile = new java.io.File(".env");
+        if (envFile.exists()) {
+            try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(envFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("#")) {
+                        continue;
+                    }
+                    int eqIdx = line.indexOf('=');
+                    if (eqIdx > 0) {
+                        String key = line.substring(0, eqIdx).trim();
+                        String val = line.substring(eqIdx + 1).trim();
+                        if (val.startsWith("\"") && val.endsWith("\"") && val.length() >= 2) {
+                            val = val.substring(1, val.length() - 1);
+                        } else if (val.startsWith("'") && val.endsWith("'") && val.length() >= 2) {
+                            val = val.substring(1, val.length() - 1);
+                        }
+                        switch (key) {
+                            case "MAIL_SMTP_HOST" -> System.setProperty("mail.smtp.host", val);
+                            case "MAIL_SMTP_PORT" -> System.setProperty("mail.smtp.port", val);
+                            case "MAIL_SMTP_USER" -> System.setProperty("mail.smtp.user", val);
+                            case "MAIL_SMTP_PASSWORD" -> System.setProperty("mail.smtp.password", val);
+                            case "MAIL_TO" -> System.setProperty("mail.to", val);
+                        }
+                    }
+                }
+                logger.info(".env file loaded successfully");
+            } catch (Exception e) {
+                logger.warn("Could not load .env file", e);
+            }
+        }
+    }
+
     private static String getSmtpHost() { return System.getProperty("mail.smtp.host", "smtp.gmail.com"); }
     private static String getSmtpPort() { return System.getProperty("mail.smtp.port", "587"); }
     private static String getSmtpUser() { return System.getProperty("mail.smtp.user", "coffeevan@example.com"); }

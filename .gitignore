@@ -5,3 +5,4 @@ logs/
 .DS_Store
 coffee_van.db
 dependency-reduced-pom.xml
+.env
