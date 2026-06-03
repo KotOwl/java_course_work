@@ -33,13 +33,20 @@ public class EmailDialog extends Dialog<Void> {
         bodyArea.setPrefRowCount(6);
         bodyArea.setWrapText(true);
 
+        Label lblTo = new Label("Кому:");
+        lblTo.setMinWidth(100);
+        Label lblSub = new Label("Тема:");
+        lblSub.setMinWidth(100);
+        Label lblBody = new Label("Повідомлення:");
+        lblBody.setMinWidth(100);
+
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(16));
-        grid.addRow(0, new Label("Кому:"), toField);
-        grid.addRow(1, new Label("Тема:"), subjectField);
-        grid.addRow(2, new Label("Повідомлення:"), bodyArea);
+        grid.addRow(0, lblTo, toField);
+        grid.addRow(1, lblSub, subjectField);
+        grid.addRow(2, lblBody, bodyArea);
 
         Label statusLabel = new Label("");
         statusLabel.setStyle("-fx-text-fill: #5d4037; -fx-font-weight: bold;");
